@@ -3,7 +3,7 @@
 ## Notes: Shows in the item tooltip what disenchanting can give and how likely, and whether disenchanting, the auction house or the vendor pays best (prices from Auctionator).
 ## Notes-deDE: Zeigt im Tooltip, was beim Entzaubern mit welcher Wahrscheinlichkeit herauskommt und ob Entzaubern, Auktionshaus oder Händler mehr bringt (Preise von Auctionator).
 ## Author: Lars
-## Version: 0.1.0
+## Version: 0.2.0
 ## SavedVariables: DisenchantAdvisorDB
 ## OptionalDeps: Auctionator
 ## IconTexture: Interface\Icons\INV_Enchant_Disenchant

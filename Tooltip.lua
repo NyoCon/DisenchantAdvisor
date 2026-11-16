@@ -12,6 +12,7 @@ local TEXT = { 0.9, 0.9, 0.9 }
 local DIM = { 0.6, 0.6, 0.6 }
 local GOOD = { 0.3, 1, 0.3 }
 local WARN = { 1, 0.6, 0.2 }
+local BAD = { 1, 0.35, 0.35 }
 
 local DISENCHANT_SPELL = 13262
 
@@ -62,6 +63,7 @@ function T.RecommendationText(e)
         notes[#notes + 1] = string.format(L["+%s over %s"], Money(e.margin), T.OptionName(e.runnerUp.key))
     end
     if e.closeCall then notes[#notes + 1] = L["close call"] end
+    if e.risky then notes[#notes + 1] = L["risky"] end
     if e.uncertain then notes[#notes + 1] = L["prices missing"] end
     if best.key == "disenchant" and not ns.KnowsDisenchant() then
         notes[#notes + 1] = L["needs an enchanter"]
@@ -122,6 +124,33 @@ local function AddComparison(tooltip, e)
     Row("disenchant", L["Disenchanting"], disenchant)
 end
 
+-- "2g 38s - 11g 40s", or one amount if both ends match
+function T.Range(low, high)
+    if Money(low) == Money(high) then return Money(low) end
+    return Money(low) .. " - " .. Money(high)
+end
+
+-- "10 %", "<1 %"
+function T.Percent(fraction)
+    local rounded = math.floor(fraction * 100 + 0.5)
+    if rounded == 0 and fraction > 1e-9 then return "<1 %" end
+    if rounded == 100 and fraction < 1 - 1e-9 then return ">99 %" end
+    return string.format("%d %%", rounded)
+end
+
+-- Chance that disenchanting earns less than the best other option, and the range of one disenchant
+local function AddRisk(tooltip, e, details)
+    local risk = e.risk
+    if not risk then return end
+    local color = risk.loss < 0.2 and GOOD or risk.loss < ns.advisor.RISKY and WARN or BAD
+    tooltip:AddDoubleLine("  " .. string.format(L["Loss risk (vs. %s)"], T.OptionName(risk.against)),
+        T.Percent(risk.loss), DIM[1], DIM[2], DIM[3], color[1], color[2], color[3])
+    if details then
+        tooltip:AddDoubleLine("  " .. L["One disenchant gives"], T.Range(risk.worst, risk.best),
+            DIM[1], DIM[2], DIM[3], DIM[1], DIM[2], DIM[3])
+    end
+end
+
 local function ShiftDown()
     return IsShiftKeyDown and IsShiftKeyDown()
 end
@@ -155,9 +184,10 @@ function T.AddLines(tooltip, item, opts)
     if details then AddComparison(tooltip, e) end
 
     if e.best then
-        local color = (e.uncertain or e.closeCall) and WARN or GOOD
+        local color = (e.uncertain or e.closeCall or e.risky) and WARN or GOOD
         tooltip:AddLine("» " .. T.RecommendationText(e), color[1], color[2], color[3], true)
     end
+    AddRisk(tooltip, e, details)
     if not details then
         tooltip:AddLine(L["Hold Shift for details"], DIM[1], DIM[2], DIM[3])
     end

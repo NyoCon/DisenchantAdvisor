@@ -24,6 +24,11 @@ local translations = {
         ["Sell to a vendor"] = "Beim Händler verkaufen",
         ["+%s over %s"] = "+%s ggü. %s",
         ["close call"] = "knapp",
+        ["risky"] = "riskant",
+        ["Loss risk (vs. %s)"] = "Verlustrisiko (ggü. %s)",
+        ["One disenchant gives"] = "Eine Entzauberung bringt",
+        ["   Loss risk vs. %s: %s, one disenchant gives %s"] =
+            "   Verlustrisiko ggü. %s: %s, eine Entzauberung bringt %s",
         ["prices missing"] = "Preise fehlen",
         ["needs an enchanter"] = "braucht einen Verzauberer",
         ["Hold Shift for details"] = "Shift für Details",

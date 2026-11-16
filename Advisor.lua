@@ -108,5 +108,53 @@ function A.Evaluate(item, opts)
         -- advice stands; if something else wins, disenchanting might still be better.
         e.uncertain = e.best.key ~= "disenchant" and not e.disenchantComplete
     end
+
+    A.AddRisk(e)
+    if e.risk and e.best and e.best.key == "disenchant" and e.risk.loss >= A.RISKY then
+        e.risky = true
+    end
     return e
+end
+
+A.RISKY = 0.40   -- disenchanting recommended, but loses against the alternative this often: "risky"
+
+-- Every possible result of one disenchant: one row of the band drops, its amount is equally
+-- likely anywhere from low to high. Needs a price for every material.
+-- Returns { { chance = 0..1, value = copper after AH cut, itemID, amount }, ... } or nil.
+function A.Outcomes(e)
+    local outcomes = {}
+    for _, drop in ipairs(e.drops) do
+        if not drop.price then return nil end
+        local each = drop.chance / 100 / (drop.high - drop.low + 1)
+        for amount = drop.low, drop.high do
+            outcomes[#outcomes + 1] = {
+                chance = each, itemID = drop.itemID, amount = amount,
+                value = amount * drop.price * (1 - A.AH_CUT),
+            }
+        end
+    end
+    return outcomes
+end
+
+-- Compares every outcome of disenchanting with the best other option (vendor or auction house):
+-- e.risk = { against = "vendor"|"auction", alternative = copper,
+--            loss = chance 0..1 that disenchanting earns less, worst, best = copper }
+function A.AddRisk(e)
+    if not e.options then return end
+    local alternative
+    for _, option in ipairs(e.options) do
+        if option.key ~= "disenchant" then alternative = option; break end   -- sorted: first is best
+    end
+    if not alternative or alternative.value <= 0 then return end
+
+    local outcomes = A.Outcomes(e)
+    if not outcomes or #outcomes == 0 then return end
+
+    local loss, worst, best = 0, math.huge, 0
+    for _, outcome in ipairs(outcomes) do
+        if outcome.value < alternative.value then loss = loss + outcome.chance end
+        worst = math.min(worst, outcome.value)
+        best = math.max(best, outcome.value)
+    end
+    e.risk = { against = alternative.key, alternative = alternative.value, loss = loss, worst = worst, best = best }
 end

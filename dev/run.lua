@@ -17,11 +17,12 @@ local items = {
     [1003] = { "Blue Ring 12", 3, 12, 300, 4, 2 },
     [1004] = { "Epic Sword 58", 4, 58, 80000, 2, 1 },
     [1005] = { "Grey Junk", 0, 20, 50, 4, 0 },
+    [1006] = { "Green Armor 23 risky", 2, 23, 1500, 4, 2 },
     [4614]  = { "No-DE Item", 2, 30, 100, 4, 1 },
     [242266] = { "Own Loot Item", 3, 30, 100, 4, 2 },
 }
 local auction = {
-    [1001] = 25000, [1002] = 30000,
+    [1001] = 25000, [1002] = 30000, [1006] = 4700,
     [10940] = 900, [10998] = 6000, [11082] = 15000, [10978] = 4000,  -- strange, l. astral, g. astral, small glimmering
     [11175] = 60000, [11176] = 25000, [11178] = 45000,                 -- g. nether, dream, l. radiant
     [20725] = 120000,                                                  -- nexus
@@ -105,7 +106,7 @@ local function Show(id, opts)
     for _, line in ipairs(tip.lines) do print(line) end
 end
 
-for _, id in ipairs({ 1001, 1002, 1003, 1004, 1005, 4614, 242266 }) do Show(id) end
+for _, id in ipairs({ 1001, 1002, 1003, 1004, 1005, 1006, 4614, 242266 }) do Show(id) end
 print("-- bound green")
 Show(1001, { bound = true })
 print("-- details on shift, not held / held")

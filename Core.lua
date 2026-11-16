@@ -94,6 +94,10 @@ local function Check(link)
         DEFAULT_CHAT_FRAME:AddMessage(string.format("   %s: %s", T.OptionName(option.key), T.Money(option.value)))
     end
     Say("Recommendation: %s", e.best and T.RecommendationText(e) or L["no recommendation"])
+    if e.risk then
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(L["   Loss risk vs. %s: %s, one disenchant gives %s"],
+            T.OptionName(e.risk.against), T.Percent(e.risk.loss), T.Range(e.risk.worst, e.risk.best)))
+    end
 end
 
 SLASH_DISENCHANTADVISOR1 = "/dadv"

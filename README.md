@@ -8,6 +8,8 @@ weapon and armor piece it shows:
 - what each option earns after the 5 % auction house cut: vendor, auction house, disenchanting
 - a recommendation: disenchant, sell at the auction house or sell to a vendor, with the lead over
   the next best option
+- the loss risk: how often a single disenchant earns less than the best other option, and the
+  range one disenchant can give
 
 Prices come from [Auctionator](https://www.curseforge.com/wow/addons/auctionator) (optional).
 Without it the tooltip shows only the materials and chances.
@@ -31,8 +33,12 @@ Reading the tooltip:
 - auction house `(bound)`: soulbound/bind on pickup, cannot be sold there
 - auction house `(base item)`: Auctionator only has a price for the item without its random suffix
 - auction house `(5 days old)` / `(over 3 weeks old)`: when Auctionator last saw the item
-- recommendation in orange: `close call` (less than 10 % ahead) or `prices missing` (disenchanting
+- recommendation in orange: `close call` (less than 10 % ahead), `risky` (disenchanting wins on
+  average, but loses in 40 % or more of the single disenchants) or `prices missing` (disenchanting
   lost, but some material prices are missing, so it might still be better)
+- loss risk: green below 20 %, orange below 40 %, red from 40 %. Shown whenever disenchanting has
+  a value and there is another option to compare with; if disenchanting is not recommended, it
+  tells how rarely it would still have paid off (100 % = never)
 - `needs an enchanter`: disenchanting wins but this character cannot disenchant
 
 ## How it works
@@ -49,6 +55,11 @@ Reading the tooltip:
   each is worth at least its partner's price × 3 (or ÷ 3); the higher value counts.
 - **Disenchanting value**: Σ chance × average amount × material price, minus 5 % auction house cut
   (the materials have to be sold too).
+- **Loss risk**: one disenchant gives exactly one row of the band, its amount equally likely
+  anywhere from min to max (how the loot of the Classic emulators works). Every outcome
+  (row × amount, chance = row chance ÷ number of amounts) is valued after the cut and compared with
+  the best non-disenchant option; the loss risk is the summed chance of the outcomes below it. Needs
+  a price for every material, otherwise no risk is shown.
 - **Auction house value**: Auctionator's price for the item link, minus 5 % cut. The deposit and
   the risk of the item not selling are not counted.
 - **Bound items**: `C_Item.IsBound` for items in bags/bank/equipped, else the binding line of the
