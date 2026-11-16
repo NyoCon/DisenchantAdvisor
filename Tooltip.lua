@@ -59,7 +59,10 @@ function T.RecommendationText(e)
         or best.key == "auction" and L["Sell at the auction house"]
         or L["Sell to a vendor"]
     local notes = {}
-    if e.runnerUp then
+    if e.declined then
+        notes[#notes + 1] = string.format(L["disenchanting: +%s on average, %s loss risk"],
+            Money(e.declined.lead), T.Percent(e.declined.loss))
+    elseif e.runnerUp then
         notes[#notes + 1] = string.format(L["+%s over %s"], Money(e.margin), T.OptionName(e.runnerUp.key))
     end
     if e.closeCall then notes[#notes + 1] = L["close call"] end
@@ -142,7 +145,8 @@ end
 local function AddRisk(tooltip, e, details)
     local risk = e.risk
     if not risk then return end
-    local color = risk.loss < 0.2 and GOOD or risk.loss < ns.advisor.RISKY and WARN or BAD
+    local maxRisk = ns.advisor.MaxRisk()
+    local color = risk.loss <= maxRisk / 2 and GOOD or risk.loss <= maxRisk + 1e-9 and WARN or BAD
     tooltip:AddDoubleLine("  " .. string.format(L["Loss risk (vs. %s)"], T.OptionName(risk.against)),
         T.Percent(risk.loss), DIM[1], DIM[2], DIM[3], color[1], color[2], color[3])
     if details then

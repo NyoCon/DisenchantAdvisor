@@ -7,7 +7,23 @@ local A = {}
 ns.advisor = A
 
 A.AH_CUT = 0.05        -- the auction house keeps 5 % of every sale
-A.CLOSE_CALL = 0.10    -- best option less than 10 % ahead of the next one: "close call"
+
+-- How disenchanting is weighed against the best other option (settings page, ns.db):
+--   mode "average":  whatever earns most on average, however often a single disenchant loses
+--   mode "balanced": disenchant only if it leads by minLead % on average OR loses in at most maxRisk %
+--   mode "safe":     disenchant only if both hold (default)
+-- minLead and maxRisk also decide the "close call" and "risky" notes.
+A.DEFAULT_MODE, A.DEFAULT_MIN_LEAD, A.DEFAULT_MAX_RISK = "safe", 10, 40
+
+local function Setting(key, default)
+    local value = ns.db and ns.db[key]
+    if value == nil then return default end
+    return value
+end
+
+function A.Mode() return Setting("mode", A.DEFAULT_MODE) end
+function A.MinLead() return Setting("minLead", A.DEFAULT_MIN_LEAD) / 100 end
+function A.MaxRisk() return Setting("maxRisk", A.DEFAULT_MAX_RISK) / 100 end
 
 local GetInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
 local GetInfoInstant = (C_Item and C_Item.GetItemInfoInstant) or _G.GetItemInfoInstant
@@ -100,23 +116,44 @@ function A.Evaluate(item, opts)
     table.sort(options, function(a, b) return a.value > b.value end)
     e.options = options
 
-    e.best, e.runnerUp = options[1], options[2]
-    if e.best then
-        e.margin = e.best.value - (e.runnerUp and e.runnerUp.value or 0)
-        e.closeCall = e.runnerUp ~= nil and e.margin < e.best.value * A.CLOSE_CALL
-        -- Missing material prices make disenchanting look worse than it is. If it wins anyway the
-        -- advice stands; if something else wins, disenchanting might still be better.
-        e.uncertain = e.best.key ~= "disenchant" and not e.disenchantComplete
-    end
-
     A.AddRisk(e)
-    if e.risk and e.best and e.best.key == "disenchant" and e.risk.loss >= A.RISKY then
-        e.risky = true
-    end
+    A.Decide(e)
     return e
 end
 
-A.RISKY = 0.40   -- disenchanting recommended, but loses against the alternative this often: "risky"
+-- Picks the recommendation from e.options (sorted by value) according to the mode.
+-- Sets best, runnerUp, margin, closeCall, risky, uncertain and, if disenchanting earned most on
+-- average but was turned down, declined = { lead = copper, loss = chance }.
+function A.Decide(e)
+    local options = e.options
+    if not options or not options[1] then return end
+    local minLead, maxRisk = A.MinLead(), A.MaxRisk()
+
+    local best, runnerUp = options[1], options[2]
+    if best.key == "disenchant" and e.risk then
+        local alternative = e.risk.alternative
+        local leadOK = best.value >= alternative * (1 + minLead)
+        local riskOK = e.risk.loss <= maxRisk + 1e-9
+        local mode = A.Mode()
+        local accept = mode == "average"
+            or (mode == "balanced" and (leadOK or riskOK))
+            or (leadOK and riskOK)
+        if not accept then
+            e.declined = { lead = best.value - alternative, loss = e.risk.loss }
+            -- the alternative is the best non-disenchant option, i.e. the second entry
+            best, runnerUp = runnerUp, best
+        end
+    end
+
+    e.best, e.runnerUp = best, runnerUp
+    e.margin = best.value - (runnerUp and runnerUp.value or 0)
+    e.closeCall = not e.declined and runnerUp ~= nil and runnerUp.value > 0
+        and e.margin < runnerUp.value * minLead
+    e.risky = best.key == "disenchant" and e.risk ~= nil and e.risk.loss > maxRisk + 1e-9
+    -- Missing material prices make disenchanting look worse than it is. If it wins anyway the
+    -- advice stands; if something else wins, disenchanting might still be better.
+    e.uncertain = best.key ~= "disenchant" and not e.disenchantComplete
+end
 
 -- Every possible result of one disenchant: one row of the band drops, its amount is equally
 -- likely anywhere from low to high. Needs a price for every material.

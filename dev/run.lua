@@ -18,6 +18,7 @@ local items = {
     [1004] = { "Epic Sword 58", 4, 58, 80000, 2, 1 },
     [1005] = { "Grey Junk", 0, 20, 50, 4, 0 },
     [1006] = { "Green Armor 23 risky", 2, 23, 1500, 4, 2 },
+    [1007] = { "Green Armor 47 (screenshot)", 2, 47, 6652, 4, 1 },
     [4614]  = { "No-DE Item", 2, 30, 100, 4, 1 },
     [242266] = { "Own Loot Item", 3, 30, 100, 4, 2 },
 }
@@ -74,6 +75,43 @@ function CreateFrame()
 end
 ITEM_SOULBOUND = "Soulbound"
 
+-- Settings API: records what the options page registers
+local registered = {}
+local function Initializer() return { SetParentInitializer = function(self, _, pred) self.pred = pred end } end
+Settings = {
+    VarType = { Boolean = "boolean", String = "string", Number = "number" },
+    RegisterVerticalLayoutCategory = function(name)
+        return { GetID = function() return name end }, { AddInitializer = function() end }
+    end,
+    RegisterAddOnSetting = function(_, variable, key, tbl, varType, name, default)
+        if tbl[key] == nil then tbl[key] = default end
+        assert(type(tbl[key]) == varType, variable .. " has type " .. type(tbl[key]))
+        registered[#registered + 1] = name .. " = " .. tostring(tbl[key])
+        return { variable = variable }
+    end,
+    RegisterProxySetting = function(_, variable, varType, name, default, get, set)
+        assert(type(get()) == varType)
+        set(get())
+        registered[#registered + 1] = name .. " = " .. tostring(get()) .. " (proxy)"
+        return { variable = variable }
+    end,
+    CreateControlTextContainer = function()
+        local data = {}
+        return { Add = function(_, v, l) data[#data + 1] = v .. ":" .. l end, GetData = function() return data end }
+    end,
+    CreateSliderOptions = function() return { SetLabelFormatter = function(_, _, f) assert(f(10) == "10 %") end } end,
+    CreateCheckbox = function() return Initializer() end,
+    CreateSlider = function() return Initializer() end,
+    CreateDropdown = function(_, _, options)
+        registered[#registered + 1] = "  dropdown: " .. table.concat(options(), ", ")
+        return Initializer()
+    end,
+    RegisterAddOnCategory = function() end,
+    OpenToCategory = function(id) print("[settings] open " .. tostring(id)) end,
+}
+MinimalSliderWithSteppersMixin = { Label = { Right = 3 } }
+CreateSettingsListSectionHeaderInitializer = function() return {} end
+
 local Tooltip = {}
 Tooltip.__index = Tooltip
 function Tooltip.new() return setmetatable({ lines = {} }, Tooltip) end
@@ -117,6 +155,23 @@ Show(1002)
 print("-- slash")
 SlashCmdList.DISENCHANTADVISOR("")
 SlashCmdList.DISENCHANTADVISOR("check |Hitem:1002::|h[Green Weapon 47]|h")
+print("-- without Auctionator")
+print("-- settings page")
+for _, line in ipairs(registered) do print(line) end
+SlashCmdList.DISENCHANTADVISOR("")
+SlashCmdList.DISENCHANTADVISOR("status")
+print("-- screenshot case per mode (bound, vendor 66s 52c)")
+DisenchantAdvisorDB.details = "always"
+auction[11176], auction[11175], auction[11178] = 2700, 10100, 19700
+for _, mode in ipairs({ "safe", "balanced", "average" }) do
+    DisenchantAdvisorDB.mode = mode
+    print("mode " .. mode)
+    Show(1007, { bound = true })
+end
+print("-- balanced, max risk 80 %: risk is fine now")
+DisenchantAdvisorDB.mode, DisenchantAdvisorDB.maxRisk = "balanced", 80
+Show(1007, { bound = true })
+DisenchantAdvisorDB.mode, DisenchantAdvisorDB.maxRisk = "safe", 40
 print("-- without Auctionator")
 Auctionator = nil
 Show(1001)

@@ -10,7 +10,12 @@ local SKILL_ENCHANTING = 333
 local DEFAULTS = {
     enabled = true,
     details = "always",   -- "always" | "shift": price comparison always or only with Shift held
+    mode = ns.advisor.DEFAULT_MODE,         -- see Advisor.lua
+    minLead = ns.advisor.DEFAULT_MIN_LEAD,  -- percent
+    maxRisk = ns.advisor.DEFAULT_MAX_RISK,  -- percent
 }
+
+local MODE_NAMES = { safe = "Safe", balanced = "Balanced", average = "Average (risky)" }
 
 local function Say(text, ...)
     local message = L[text]
@@ -65,6 +70,8 @@ local function PrintStatus()
         ns.db.enabled and L["on"] or L["off"],
         ns.db.details == "always" and L["always"] or L["with Shift"],
         ns.prices.Available() and "Auctionator" or L["none (Auctionator missing)"])
+    Say("Recommendation: %s, minimum lead %d %%, maximum loss risk %d %%",
+        L[MODE_NAMES[ns.db.mode] or ns.db.mode], ns.db.minLead, ns.db.maxRisk)
     if ns.tooltip.lastError then
         DEFAULT_CHAT_FRAME:AddMessage(PREFIX .. "|cffff5555" .. tostring(ns.tooltip.lastError) .. "|r")
     end
@@ -72,6 +79,8 @@ end
 
 local function PrintHelp()
     Say("Commands:")
+    Say("  /dadv - settings (Esc > Options > AddOns)")
+    Say("  /dadv status - current settings and the last tooltip error")
     Say("  /dadv details always|shift - drops and price comparison always or only with Shift")
     Say("  /dadv on|off - tooltip lines on or off")
     Say("  /dadv check <item link> - evaluation of an item in the chat")
@@ -115,6 +124,8 @@ SlashCmdList.DISENCHANTADVISOR = function(input)
         PrintStatus()
     elseif command == "check" and rest ~= "" then
         Check(rest)
+    elseif command == "" and ns.options.Open() then
+        return
     elseif command == "" or command == "status" then
         PrintStatus()
         PrintHelp()
@@ -136,6 +147,8 @@ frame:SetScript("OnEvent", function(_, event, arg1)
             if DisenchantAdvisorDB[key] == nil then DisenchantAdvisorDB[key] = value end
         end
         ns.db = DisenchantAdvisorDB
+        local ok, err = pcall(ns.options.Register)
+        if not ok then ns.tooltip.lastError = err end
     elseif event == "PLAYER_LOGIN" then
         ns.tooltip.Hook()
         PreloadMaterials()
