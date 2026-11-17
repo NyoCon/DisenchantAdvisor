@@ -42,6 +42,11 @@ function O.Register()
     -- ---------------------------------------------------- recommendation
     Header(L["Recommendation"])
 
+    local auction = Settings.RegisterAddOnSetting(category, "DisenchantAdvisor_useAuction", "useAuction", db,
+        Settings.VarType.Boolean, L["Consider selling at the auction house"], true)
+    Settings.CreateCheckbox(category, auction,
+        L["Off: the item itself is only compared with the vendor price, e.g. if you do not want to sell items at the auction house. The materials are still valued at auction prices."])
+
     local mode = Settings.RegisterAddOnSetting(category, "DisenchantAdvisor_mode", "mode", db,
         Settings.VarType.String, L["Recommendation style"], ns.advisor.DEFAULT_MODE)
     local function ModeOptions()

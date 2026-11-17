@@ -24,6 +24,8 @@ end
 function A.Mode() return Setting("mode", A.DEFAULT_MODE) end
 function A.MinLead() return Setting("minLead", A.DEFAULT_MIN_LEAD) / 100 end
 function A.MaxRisk() return Setting("maxRisk", A.DEFAULT_MAX_RISK) / 100 end
+-- false: selling the item at the auction house is left out (material prices still count)
+function A.UseAuction() return Setting("useAuction", true) end
 
 local GetInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
 local GetInfoInstant = (C_Item and C_Item.GetItemInfoInstant) or _G.GetItemInfoInstant
@@ -46,6 +48,7 @@ end
 --   disenchant, disenchantComplete     after the AH cut; complete = every material has a price
 --   vendor                             vendor price (0 if it cannot be sold to a vendor)
 --   bound                              cannot be sold at the auction house
+--   auctionOff                         selling at the auction house is switched off in the settings
 --   auction, auctionExact, auctionAge  auction price after the cut, exact link match, age in days
 --   options = sorted list { key = "disenchant"|"auction"|"vendor", value }
 --   best, runnerUp, margin, closeCall, uncertain
@@ -77,6 +80,7 @@ function A.Evaluate(item, opts)
         vendor = sellPrice or 0,
         bound = opts.bound or bindType == BIND_ON_PICKUP or bindType == BIND_QUEST,
         pricesAvailable = ns.prices.Available(),
+        auctionOff = not A.UseAuction(),
     }
 
     -- expected material value: chance x average amount x price
@@ -97,7 +101,7 @@ function A.Evaluate(item, opts)
     e.disenchant = gross * (1 - A.AH_CUT)
     e.disenchantComplete = complete and e.pricesAvailable
 
-    if not e.bound and e.pricesAvailable then
+    if not e.bound and not e.auctionOff and e.pricesAvailable then
         local price, exact, age = ns.prices.Item(item)
         if price then
             e.auction = price * (1 - A.AH_CUT)

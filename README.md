@@ -26,6 +26,7 @@ Install, `/reload`, hover over an item.
 |---|---|---|
 | Show in item tooltips | on | |
 | Price comparison only with Shift | off | materials and recommendation stay visible |
+| Consider selling at the auction house | on | off: the item is only compared with the vendor price; the materials are still valued at auction prices |
 | Recommendation style | Safe | see below |
 | Minimum lead | 10 % | how much more disenchanting has to earn on average than the best sale |
 | Maximum loss risk | 40 % | in how many cases a single disenchant may earn less than the best sale |

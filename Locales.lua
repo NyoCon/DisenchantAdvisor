@@ -35,6 +35,9 @@ local translations = {
         ["Materials and recommendation are always shown; the proceeds of each option and the range of a single disenchant only while Shift is held."] =
             "Materialien und Empfehlung stehen immer da; der Erlös jeder Option und die Spanne einer Entzauberung nur bei gedrückter Shift-Taste.",
         ["Recommendation"] = "Empfehlung",
+        ["Consider selling at the auction house"] = "Verkauf im Auktionshaus berücksichtigen",
+        ["Off: the item itself is only compared with the vendor price, e.g. if you do not want to sell items at the auction house. The materials are still valued at auction prices."] =
+            "Aus: Der Gegenstand selbst wird nur mit dem Händlerpreis verglichen, z. B. wenn du keine Gegenstände im Auktionshaus verkaufen willst. Die Materialien werden weiter mit Auktionspreisen bewertet.",
         ["Recommendation style"] = "Empfehlungsstil",
         ["When should disenchanting be recommended over selling? Selling to a vendor pays a fixed amount; a single disenchant can give much less or much more than its average."] =
             "Wann soll Entzaubern statt Verkaufen empfohlen werden? Der Händler zahlt einen festen Betrag, eine einzelne Entzauberung kann deutlich weniger oder mehr bringen als ihr Durchschnitt.",
@@ -77,8 +80,8 @@ local translations = {
             "%s lässt sich nicht in die üblichen Materialien entzaubern (oder ist noch nicht geladen).",
         ["%s: item level %d, band %d-%d"] = "%s: Gegenstandsstufe %d, Stufe %d-%d",
         ["Recommendation: %s"] = "Empfehlung: %s",
-        ["Recommendation: %s, minimum lead %d %%, maximum loss risk %d %%"] =
-            "Empfehlung: %s, Mindestvorsprung %d %%, maximales Verlustrisiko %d %%",
+        ["Recommendation: %s, minimum lead %d %%, maximum loss risk %d %%, auction house: %s"] =
+            "Empfehlung: %s, Mindestvorsprung %d %%, maximales Verlustrisiko %d %%, Auktionshaus: %s",
         ["  /dadv - settings (Esc > Options > AddOns)"] = "  /dadv - Einstellungen (Esc > Optionen > AddOns)",
         ["  /dadv status - current settings and the last tooltip error"] =
             "  /dadv status - aktuelle Einstellungen und letzter Tooltip-Fehler",

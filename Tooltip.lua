@@ -121,7 +121,9 @@ local function AddComparison(tooltip, e)
     end
 
     Row("vendor", L["Vendor"], e.vendor > 0 and Money(e.vendor) or "-")
-    Row("auction", L["Auction house"], e.auction and Money(e.auction) or "-", AuctionNote(e))
+    if not e.auctionOff then
+        Row("auction", L["Auction house"], e.auction and Money(e.auction) or "-", AuctionNote(e))
+    end
     local disenchant = e.disenchantGross > 0 and Money(e.disenchant) or "?"
     if e.disenchantGross > 0 and not e.disenchantComplete then disenchant = disenchant .. " +?" end
     Row("disenchant", L["Disenchanting"], disenchant)

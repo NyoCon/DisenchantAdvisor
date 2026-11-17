@@ -155,7 +155,6 @@ Show(1002)
 print("-- slash")
 SlashCmdList.DISENCHANTADVISOR("")
 SlashCmdList.DISENCHANTADVISOR("check |Hitem:1002::|h[Green Weapon 47]|h")
-print("-- without Auctionator")
 print("-- settings page")
 for _, line in ipairs(registered) do print(line) end
 SlashCmdList.DISENCHANTADVISOR("")
@@ -172,6 +171,11 @@ print("-- balanced, max risk 80 %: risk is fine now")
 DisenchantAdvisorDB.mode, DisenchantAdvisorDB.maxRisk = "balanced", 80
 Show(1007, { bound = true })
 DisenchantAdvisorDB.mode, DisenchantAdvisorDB.maxRisk = "safe", 40
+print("-- auction house switched off (1006: with it, the AH wins)")
+DisenchantAdvisorDB.useAuction = false
+Show(1006)
+SlashCmdList.DISENCHANTADVISOR("status")
+DisenchantAdvisorDB.useAuction = true
 print("-- without Auctionator")
 Auctionator = nil
 Show(1001)

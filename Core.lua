@@ -13,6 +13,7 @@ local DEFAULTS = {
     mode = ns.advisor.DEFAULT_MODE,         -- see Advisor.lua
     minLead = ns.advisor.DEFAULT_MIN_LEAD,  -- percent
     maxRisk = ns.advisor.DEFAULT_MAX_RISK,  -- percent
+    useAuction = true,    -- false: selling the item at the auction house is not considered
 }
 
 local MODE_NAMES = { safe = "Safe", balanced = "Balanced", average = "Average (risky)" }
@@ -70,8 +71,9 @@ local function PrintStatus()
         ns.db.enabled and L["on"] or L["off"],
         ns.db.details == "always" and L["always"] or L["with Shift"],
         ns.prices.Available() and "Auctionator" or L["none (Auctionator missing)"])
-    Say("Recommendation: %s, minimum lead %d %%, maximum loss risk %d %%",
-        L[MODE_NAMES[ns.db.mode] or ns.db.mode], ns.db.minLead, ns.db.maxRisk)
+    Say("Recommendation: %s, minimum lead %d %%, maximum loss risk %d %%, auction house: %s",
+        L[MODE_NAMES[ns.db.mode] or ns.db.mode], ns.db.minLead, ns.db.maxRisk,
+        ns.db.useAuction and L["on"] or L["off"])
     if ns.tooltip.lastError then
         DEFAULT_CHAT_FRAME:AddMessage(PREFIX .. "|cffff5555" .. tostring(ns.tooltip.lastError) .. "|r")
     end
