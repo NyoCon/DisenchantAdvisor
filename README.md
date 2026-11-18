@@ -70,8 +70,14 @@ Reading the tooltip:
 
 - **Bands**: which materials an item can give depends on class (weapon/armor), quality and item
   level. The bands are Forever's client table `ItemDisenchantLoot`. The client does not contain
-  what drops in a band; chances and amounts are Classic 1.12's as reproduced by vmangos
-  (`disenchant_loot_template`), taken over from the addon Disenchant Forever (`Data/Bands.lua`).
+  what drops in a band; chances and amounts are Classic 1.12's as reproduced by the
+  [vmangos](https://github.com/vmangos/core) world database: the items of a band give its
+  `disenchant_id`, whose rows in `disenchant_loot_template` are the drops. One deviation: for epics
+  of level 56+ vmangos also lists a Large Brilliant Shard next to the Nexus Crystal, which
+  [cmangos classic-db](https://github.com/cmangos/classic-db) and Classic 1.12 do not; it is left
+  out. `tools/update_drops.py` writes `Data/Drops.lua` from both sources:
+  `python3 tools/update_drops.py [mangos.sql or db zip] [build]` (downloads the newest vmangos
+  snapshot without a path).
 - **Exceptions**: `Data/NoDisenchant.lua` (items flagged as not disenchantable) and
   `Data/OwnLoot.lua` (items with their own disenchant loot) are generated from the client's
   `ItemSparse`/`Item` tables by `tools/update_data.py` via wago.tools. Rerun it after a client
@@ -100,3 +106,8 @@ Reading the tooltip:
 
 `luajit dev/run.lua` loads the addon with a small mock of the WoW API and prints the tooltip lines
 of a few test items as text (`LOCALE=enUS luajit dev/run.lua` for English).
+
+## License
+
+MIT, see `LICENSE`. The drop chances in `Data/Drops.lua` are game data taken from the vmangos
+world database (GPL-2.0).
