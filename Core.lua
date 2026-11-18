@@ -9,7 +9,7 @@ local SKILL_ENCHANTING = 333
 
 local DEFAULTS = {
     enabled = true,
-    details = "always",   -- "always" | "shift": price comparison always or only with Shift held
+    detailsKey = "none",  -- "none" | "CTRL" | "SHIFT" | "ALT": details always or only with that key held
     mode = ns.advisor.DEFAULT_MODE,         -- see Advisor.lua
     minLead = ns.advisor.DEFAULT_MIN_LEAD,  -- percent
     maxRisk = ns.advisor.DEFAULT_MAX_RISK,  -- percent
@@ -67,9 +67,10 @@ end
 -- ------------------------------------------------------------------ chat
 
 local function PrintStatus()
+    local key = ns.tooltip.DetailsKey()
     Say("Tooltip: %s, details: %s, prices: %s",
         ns.db.enabled and L["on"] or L["off"],
-        ns.db.details == "always" and L["always"] or L["with Shift"],
+        key == "none" and L["always"] or string.format(L["with %s"], L[ns.tooltip.KEY_NAMES[key]]),
         ns.prices.Available() and "Auctionator" or L["none (Auctionator missing)"])
     Say("Recommendation: %s, minimum lead %d %%, maximum loss risk %d %%, auction house: %s",
         L[MODE_NAMES[ns.db.mode] or ns.db.mode], ns.db.minLead, ns.db.maxRisk,
@@ -83,7 +84,7 @@ local function PrintHelp()
     Say("Commands:")
     Say("  /dadv - settings (Esc > Options > AddOns)")
     Say("  /dadv status - current settings and the last tooltip error")
-    Say("  /dadv details always|shift - drops and price comparison always or only with Shift")
+    Say("  /dadv details none|ctrl|shift|alt - price comparison always or only with that key held")
     Say("  /dadv on|off - tooltip lines on or off")
     Say("  /dadv check <item link> - evaluation of an item in the chat")
 end
@@ -111,6 +112,9 @@ local function Check(link)
     end
 end
 
+-- /dadv details <arg> -> detailsKey ("always" is the pre-0.5 spelling of "none")
+local DETAILS_ARGS = { none = "none", always = "none", ctrl = "CTRL", shift = "SHIFT", alt = "ALT" }
+
 SLASH_DISENCHANTADVISOR1 = "/dadv"
 SLASH_DISENCHANTADVISOR2 = "/disenchantadvisor"
 SlashCmdList.DISENCHANTADVISOR = function(input)
@@ -121,8 +125,8 @@ SlashCmdList.DISENCHANTADVISOR = function(input)
     if command == "on" or command == "off" then
         ns.db.enabled = command == "on"
         PrintStatus()
-    elseif command == "details" and (rest == "always" or rest == "shift") then
-        ns.db.details = rest
+    elseif command == "details" and DETAILS_ARGS[rest:lower()] then
+        ns.db.detailsKey = DETAILS_ARGS[rest:lower()]
         PrintStatus()
     elseif command == "check" and rest ~= "" then
         Check(rest)
@@ -145,6 +149,13 @@ frame:RegisterEvent("MODIFIER_STATE_CHANGED")
 frame:SetScript("OnEvent", function(_, event, arg1)
     if event == "ADDON_LOADED" and arg1 == ADDON then
         DisenchantAdvisorDB = DisenchantAdvisorDB or {}
+        -- up to 0.4.1: details = "always" | "shift"
+        if DisenchantAdvisorDB.details ~= nil then
+            if DisenchantAdvisorDB.detailsKey == nil and DisenchantAdvisorDB.details == "shift" then
+                DisenchantAdvisorDB.detailsKey = "SHIFT"
+            end
+            DisenchantAdvisorDB.details = nil
+        end
         for key, value in pairs(DEFAULTS) do
             if DisenchantAdvisorDB[key] == nil then DisenchantAdvisorDB[key] = value end
         end

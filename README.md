@@ -73,7 +73,7 @@ Notes that can show up:
 | Setting | Default | |
 |---|---|---|
 | Show in item tooltips | on | |
-| Price comparison only with Shift | off | materials and recommendation stay visible; the proceeds and the range of a single disenchant only while Shift is held |
+| Modifier key for details | None | None, Ctrl, Shift or Alt. With a key, the proceeds of each option and the range of a single disenchant are only shown while it is held; materials and recommendation stay visible |
 | Consider selling at the auction house | on | off: the item is only compared with the vendor price; the materials are still valued at auction prices |
 | Recommendation style | Safe | see below |
 | Minimum lead | 10 % | how much more disenchanting has to earn on average than the best sale |
@@ -94,7 +94,7 @@ Recommendation styles, for when disenchanting earns most on average:
 |---|---|
 | `/dadv` | opens the settings |
 | `/dadv status` | settings and help (also shows the last tooltip error, if any) |
-| `/dadv details always\|shift` | price comparison always (default) or only with Shift held |
+| `/dadv details none\|ctrl\|shift\|alt` | price comparison always (default) or only while that key is held |
 | `/dadv on\|off` | tooltip lines on or off |
 | `/dadv check <item link>` | the evaluation of a shift-clicked item in the chat |
 

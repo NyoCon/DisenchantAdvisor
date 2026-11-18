@@ -31,13 +31,17 @@ function O.Register()
     Settings.CreateCheckbox(category, enabled,
         L["What disenchanting gives, the price comparison and the recommendation."])
 
-    -- stored as "always" | "shift" (also set by /dadv details), shown as a checkbox
-    local shift = Settings.RegisterProxySetting(category, "DisenchantAdvisor_shiftDetails",
-        Settings.VarType.Boolean, L["Price comparison only with Shift"], false,
-        function() return db.details == "shift" end,
-        function(value) db.details = value and "shift" or "always" end)
-    Settings.CreateCheckbox(category, shift,
-        L["Materials and recommendation are always shown; the proceeds of each option and the range of a single disenchant only while Shift is held."])
+    local detailsKey = Settings.RegisterAddOnSetting(category, "DisenchantAdvisor_detailsKey", "detailsKey", db,
+        Settings.VarType.String, L["Modifier key for details"], "none")
+    local function KeyOptions()
+        local container = Settings.CreateControlTextContainer()
+        for _, key in ipairs(ns.tooltip.KEYS) do
+            container:Add(key, L[ns.tooltip.KEY_NAMES[key]])
+        end
+        return container:GetData()
+    end
+    Settings.CreateDropdown(category, detailsKey, KeyOptions,
+        L["None: the details are always shown. Otherwise the proceeds of each option and the range of a single disenchant only while that key is held; materials and recommendation are always shown."])
 
     -- ---------------------------------------------------- recommendation
     Header(L["Recommendation"])

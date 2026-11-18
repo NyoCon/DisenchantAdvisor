@@ -31,9 +31,11 @@ local translations = {
         ["Show in item tooltips"] = "Im Gegenstands-Tooltip anzeigen",
         ["What disenchanting gives, the price comparison and the recommendation."] =
             "Was beim Entzaubern herauskommt, Preisvergleich und Empfehlung.",
-        ["Price comparison only with Shift"] = "Preisvergleich nur mit Shift",
-        ["Materials and recommendation are always shown; the proceeds of each option and the range of a single disenchant only while Shift is held."] =
-            "Materialien und Empfehlung stehen immer da; der Erlös jeder Option und die Spanne einer Entzauberung nur bei gedrückter Shift-Taste.",
+        ["Modifier key for details"] = "Taste für Details",
+        ["None: the details are always shown. Otherwise the proceeds of each option and the range of a single disenchant only while that key is held; materials and recommendation are always shown."] =
+            "Nichts: Details stehen immer da. Sonst der Erlös jeder Option und die Spanne einer Entzauberung nur bei gedrückter Taste; Materialien und Empfehlung stehen immer da.",
+        ["None"] = "Nichts",
+        ["Ctrl"] = "Strg",
         ["Recommendation"] = "Empfehlung",
         ["Consider selling at the auction house"] = "Verkauf im Auktionshaus berücksichtigen",
         ["Off: the item itself is only compared with the vendor price, e.g. if you do not want to sell items at the auction house. The materials are still valued at auction prices."] =
@@ -62,11 +64,11 @@ local translations = {
             "   Verlustrisiko ggü. %s: %s, eine Entzauberung bringt %s",
         ["prices missing"] = "Preise fehlen",
         ["needs an enchanter"] = "braucht einen Verzauberer",
-        ["Hold Shift for details"] = "Shift für Details",
+        ["Hold %s for details"] = "%s für Details",
         -- chat
         ["Commands:"] = "Befehle:",
-        ["  /dadv details always|shift - drops and price comparison always or only with Shift"] =
-            "  /dadv details always|shift - Materialien und Preisvergleich immer oder nur mit Shift",
+        ["  /dadv details none|ctrl|shift|alt - price comparison always or only with that key held"] =
+            "  /dadv details none|ctrl|shift|alt - Preisvergleich immer oder nur bei gedrückter Taste",
         ["  /dadv on|off - tooltip lines on or off"] = "  /dadv on|off - Tooltip-Zeilen an oder aus",
         ["  /dadv check <item link> - evaluation of an item in the chat"] =
             "  /dadv check <Gegenstandslink> - Bewertung eines Gegenstands im Chat",
@@ -74,7 +76,7 @@ local translations = {
         ["on"] = "an",
         ["off"] = "aus",
         ["always"] = "immer",
-        ["with Shift"] = "mit Shift",
+        ["with %s"] = "mit %s",
         ["none (Auctionator missing)"] = "keine (Auctionator fehlt)",
         ["%s does not disenchant into the usual materials (or is not cached yet)."] =
             "%s lässt sich nicht in die üblichen Materialien entzaubern (oder ist noch nicht geladen).",

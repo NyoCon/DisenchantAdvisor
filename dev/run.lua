@@ -29,7 +29,7 @@ local auction = {
     [20725] = 120000,                                                  -- nexus
 }
 local ages = { [1001] = 1, [1002] = 5 }
-local shift = false
+local held = {}   -- modifier keys held: held.SHIFT, held.CTRL, held.ALT
 
 function GetLocale() return os.getenv("LOCALE") or "deDE" end
 issecretvalue = function() return false end
@@ -48,7 +48,9 @@ C_Item = {
 }
 C_Spell = { GetSpellName = function() return "Entzaubern" end }
 IsPlayerSpell = function() return true end
-IsShiftKeyDown = function() return shift end
+IsShiftKeyDown = function() return held.SHIFT == true end
+IsControlKeyDown = function() return held.CTRL == true end
+IsAltKeyDown = function() return held.ALT == true end
 GetMoneyString = function(c)
     local g, s, k = math.floor(c / 10000), math.floor(c / 100) % 100, c % 100
     local out = {}
@@ -132,7 +134,10 @@ for file in toc:gmatch("[^\r\n]+") do
         chunk(ADDON, ns)
     end
 end
+DisenchantAdvisorDB = { details = "shift" }   -- saved by 0.4.x: must become detailsKey = "SHIFT"
 for _, fn in ipairs(handlers) do fn(nil, "ADDON_LOADED", ADDON) end
+assert(DisenchantAdvisorDB.detailsKey == "SHIFT" and DisenchantAdvisorDB.details == nil, "migration")
+DisenchantAdvisorDB.detailsKey = "none"
 for _, fn in ipairs(handlers) do fn(nil, "PLAYER_LOGIN") end
 
 -- ------------------------------------------------------------------ run
@@ -147,11 +152,21 @@ end
 for _, id in ipairs({ 1001, 1002, 1003, 1004, 1005, 1006, 4614, 242266 }) do Show(id) end
 print("-- bound green")
 Show(1001, { bound = true })
-print("-- details on shift, not held / held")
-DisenchantAdvisorDB.details = "shift"
-Show(1002)
-shift = true
-Show(1002)
+for _, key in ipairs({ "SHIFT", "CTRL", "ALT" }) do
+    print("-- details on " .. key .. ": not held / other key held / held")
+    DisenchantAdvisorDB.detailsKey = key
+    Show(1002)
+    held = { [key == "ALT" and "SHIFT" or "ALT"] = true }
+    Show(1002)
+    held = { [key] = true }
+    Show(1002)
+    held = {}
+end
+DisenchantAdvisorDB.detailsKey = "CTRL"
+SlashCmdList.DISENCHANTADVISOR("details alt")
+assert(DisenchantAdvisorDB.detailsKey == "ALT")
+SlashCmdList.DISENCHANTADVISOR("details always")
+assert(DisenchantAdvisorDB.detailsKey == "none")
 print("-- slash")
 SlashCmdList.DISENCHANTADVISOR("")
 SlashCmdList.DISENCHANTADVISOR("check |Hitem:1002::|h[Green Weapon 47]|h")
@@ -160,7 +175,7 @@ for _, line in ipairs(registered) do print(line) end
 SlashCmdList.DISENCHANTADVISOR("")
 SlashCmdList.DISENCHANTADVISOR("status")
 print("-- screenshot case per mode (bound, vendor 66s 52c)")
-DisenchantAdvisorDB.details = "always"
+DisenchantAdvisorDB.detailsKey = "none"
 auction[11176], auction[11175], auction[11178] = 2700, 10100, 19700
 for _, mode in ipairs({ "safe", "balanced", "average" }) do
     DisenchantAdvisorDB.mode = mode

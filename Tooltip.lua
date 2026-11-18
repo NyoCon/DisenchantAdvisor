@@ -157,8 +157,25 @@ local function AddRisk(tooltip, e, details)
     end
 end
 
-local function ShiftDown()
-    return IsShiftKeyDown and IsShiftKeyDown()
+-- Details (price comparison, range of one disenchant) always, or only while a modifier key is held
+local KEY_DOWN = {
+    CTRL = function() return IsControlKeyDown and IsControlKeyDown() end,
+    SHIFT = function() return IsShiftKeyDown and IsShiftKeyDown() end,
+    ALT = function() return IsAltKeyDown and IsAltKeyDown() end,
+}
+T.KEYS = { "none", "CTRL", "SHIFT", "ALT" }   -- order in the settings dropdown
+T.KEY_NAMES = { none = "None", CTRL = "Ctrl", SHIFT = "Shift", ALT = "Alt" }
+
+-- "none" | "CTRL" | "SHIFT" | "ALT"
+function T.DetailsKey()
+    local key = ns.db and ns.db.detailsKey
+    if KEY_DOWN[key] then return key end
+    return "none"
+end
+
+function T.DetailsShown()
+    local key = T.DetailsKey()
+    return key == "none" or KEY_DOWN[key]() == true
 end
 
 -- Adds the lines; returns true if anything was added.
@@ -179,7 +196,7 @@ function T.AddLines(tooltip, item, opts)
     end
     tooltip:AddDoubleLine(SpellName(), value, GOLD[1], GOLD[2], GOLD[3], TEXT[1], TEXT[2], TEXT[3])
 
-    local details = ns.db.details == "always" or ShiftDown()
+    local details = T.DetailsShown()
     AddDrops(tooltip, e)   -- the drops are the main information: always shown
 
     if not e.pricesAvailable then
@@ -195,7 +212,8 @@ function T.AddLines(tooltip, item, opts)
     end
     AddRisk(tooltip, e, details)
     if not details then
-        tooltip:AddLine(L["Hold Shift for details"], DIM[1], DIM[2], DIM[3])
+        tooltip:AddLine(string.format(L["Hold %s for details"], L[T.KEY_NAMES[T.DetailsKey()]]),
+            DIM[1], DIM[2], DIM[3])
     end
     return true
 end
@@ -257,9 +275,9 @@ function T.Hook()
     end
 end
 
--- Shift toggles the details: redraw the tooltip that is open
+-- The modifier key toggles the details: redraw the tooltip that is open
 function T.OnModifierChanged()
-    if not ns.db or ns.db.details == "always" then return end
+    if not ns.db or T.DetailsKey() == "none" then return end
     if GameTooltip and GameTooltip:IsShown() and GameTooltip.RefreshData then
         pcall(GameTooltip.RefreshData, GameTooltip)
     end
