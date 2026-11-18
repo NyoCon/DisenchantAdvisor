@@ -1,0 +1,6 @@
+# Left out of release archives (git archive, GitHub source downloads): only the addon goes in.
+/screenshots export-ignore
+/dev export-ignore
+/tools export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
