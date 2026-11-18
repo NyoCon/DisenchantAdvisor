@@ -17,10 +17,14 @@ The screenshots are from the German client; the addon is in English and German.
 
 ## Installation
 
-1. Download the repository (*Code > Download ZIP*).
-2. Put the folder into `World of Warcraft/_forever_/Interface/AddOns/` and name it
-   `DisenchantAdvisor` (a GitHub ZIP unpacks to `DisenchantAdvisor-main`, rename it).
+1. Download `DisenchantAdvisor-<version>.zip` from the
+   [latest release](https://github.com/NyoCon/DisenchantAdvisor/releases/latest).
+2. Unpack it into `World of Warcraft/_forever_/Interface/AddOns/`, so that you get
+   `AddOns/DisenchantAdvisor/DisenchantAdvisor.toc`.
 3. `/reload` or restart the game, then hover over an item.
+
+(*Code > Download ZIP* works too, but unpacks to `DisenchantAdvisor-main`: rename the folder to
+`DisenchantAdvisor`.)
 
 Prices come from [Auctionator](https://www.curseforge.com/wow/addons/auctionator), which is
 optional but recommended. Without it the tooltip shows only the materials and their chances:
